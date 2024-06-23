@@ -42,7 +42,7 @@ config_zabbix(){
 }
 
 # Отримання авторизаційного токена
-auth_token=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
+auth_response=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
     "jsonrpc": "2.0",
     "method": "user.login",
     "params": {
@@ -50,7 +50,7 @@ auth_token=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
         "password": "'$zabbix_pass'"
     },
     "id": 1
-}' $zabbix_url | jq -r '.result')
+}' $zabbix_url)
 
 # Діагностичне виведення для перевірки відповіді
 echo "Auth Response: $auth_response"
@@ -66,34 +66,50 @@ fi
 # Функція для отримання ID групи по її імені
 get_group_id() {
     local group_name=$1
-    local group_id=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
-        "jsonrpc": "2.0",
-        "method": "hostgroup.get",
-        "params": {
-            "filter": {
-                "name": [
-                    "'$group_name'"
-                ]
-            }
-        },
-        "auth": "'$auth_token'",
-        "id": 1
-    }' $zabbix_url | jq -r '.result[0].groupid')
+    local response=$(curl -s --request POST \
+        --url "$zabbix_url" \
+        --header "Authorization: Bearer ${auth_token}" \
+        --header 'Content-Type: application/json-rpc' \
+        --data '{
+            "jsonrpc": "2.0",
+            "method": "hostgroup.get",
+            "params": {
+                "filter": {
+                    "name": [
+                        "'$group_name'"
+                    ]
+                }
+            },
+            "id": 1
+        }')
+
+    # Діагностичне виведення для перевірки відповіді
+    echo "Get Group Response: $response"
+
+    local group_id=$(echo $response | jq -r '.result[0].groupid')
     echo $group_id
 }
 
 # Функція для створення групи
 create_group() {
     local group_name=$1
-    local group_id=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
-        "jsonrpc": "2.0",
-        "method": "hostgroup.create",
-        "params": {
-            "name": "'$group_name'"
-        },
-        "auth": "'$auth_token'",
-        "id": 1
-    }' $zabbix_url | jq -r '.result.groupids[0]')
+    local response=$(curl -s --request POST \
+        --url "$zabbix_url" \
+        --header "Authorization: Bearer ${auth_token}" \
+        --header 'Content-Type: application/json-rpc' \
+        --data '{
+            "jsonrpc": "2.0",
+            "method": "hostgroup.create",
+            "params": {
+                "name": "'$group_name'"
+            },
+            "id": 1
+        }')
+
+    # Діагностичне виведення для перевірки відповіді
+    echo "Create Group Response: $response"
+
+    local group_id=$(echo $response | jq -r '.result.groupids[0]')
     echo $group_id
 }
 
@@ -101,33 +117,48 @@ create_group() {
 move_host_to_group() {
     local hostname=$1
     local new_group_id=$2
-    local host_id=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
-        "jsonrpc": "2.0",
-        "method": "host.get",
-        "params": {
-            "filter": {
-                "host": [
-                    "'$hostname'"
-                ]
-            }
-        },
-        "auth": "'$auth_token'",
-        "id": 1
-    }' $zabbix_url | jq -r '.result[0].hostid')
-    curl -s -X POST -H 'Content-Type: application/json' -d '{
-        "jsonrpc": "2.0",
-        "method": "host.update",
-        "params": {
-            "hostid": "'$host_id'",
-            "groups": [
-                {
-                    "groupid": "'$new_group_id'"
+    local response=$(curl -s --request POST \
+        --url "$zabbix_url" \
+        --header "Authorization: Bearer ${auth_token}" \
+        --header 'Content-Type: application/json-rpc' \
+        --data '{
+            "jsonrpc": "2.0",
+            "method": "host.get",
+            "params": {
+                "filter": {
+                    "host": [
+                        "'$hostname'"
+                    ]
                 }
-            ]
-        },
-        "auth": "'$auth_token'",
-        "id": 1
-    }' $zabbix_url > /dev/null
+            },
+            "id": 1
+        }')
+
+    # Діагностичне виведення для перевірки відповіді
+    echo "Get Host Response: $response"
+
+    local host_id=$(echo $response | jq -r '.result[0].hostid')
+
+    response=$(curl -s --request POST \
+        --url "$zabbix_url" \
+        --header "Authorization: Bearer ${auth_token}" \
+        --header 'Content-Type: application/json-rpc' \
+        --data '{
+            "jsonrpc": "2.0",
+            "method": "host.update",
+            "params": {
+                "hostid": "'$host_id'",
+                "groups": [
+                    {
+                        "groupid": "'$new_group_id'"
+                    }
+                ]
+            },
+            "id": 1
+        }')
+
+    # Діагностичне виведення для перевірки відповіді
+    echo "Move Host Response: $response"
 }
 
 # Основний процес
