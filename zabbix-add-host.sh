@@ -9,6 +9,7 @@ zabbix_url="https://nodes.website/api_jsonrpc.php"
 zabbix_user="api_user"
 zabbix_pass="eZ57E5x55VAyZks"
 discovery_group_id="5"
+auth_token="0c7e1ec52e11bf40dc3b05abc2392c373711832111602ea4676b5a63475985ae"
 
 remove_old_zabbix(){
     if [[ $(systemctl list-units --full -all | grep "zabbix-agent" | wc -l) -ne 0 ]]; then
