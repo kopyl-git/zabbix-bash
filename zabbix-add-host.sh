@@ -5,7 +5,7 @@ server_ip="65.108.196.236"
 hostname="$HOST_NAME"
 
 # Zabbix API налаштування
-zabbix_url="http://nodes.website/zabbix/api_jsonrpc.php"
+zabbix_url="https://nodes.website/zabbix/api_jsonrpc.php"
 zabbix_user="api_user"
 zabbix_pass="eZ57E5x55VAyZks"
 discovery_group_id="5"
