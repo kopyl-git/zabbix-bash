@@ -42,28 +42,6 @@ config_zabbix(){
     systemctl restart zabbix-agent
 }
 
-# Отримання авторизаційного токена
-auth_response=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
-    "jsonrpc": "2.0",
-    "method": "user.login",
-    "params": {
-        "user": "'$zabbix_user'",
-        "password": "'$zabbix_pass'"
-    },
-    "id": 1
-}' $zabbix_url)
-
-# Діагностичне виведення для перевірки відповіді
-echo "Auth Response: $auth_response"
-
-auth_token=$(echo $auth_response | jq -r '.result')
-
-# Перевірка чи отримано токен
-if [ "$auth_token" == "null" ] || [ -z "$auth_token" ]; then
-    echo "Помилка: не вдалося отримати авторизаційний токен."
-    exit 1
-fi
-
 # Функція для отримання ID групи по її імені
 get_group_id() {
     local group_name=$1
