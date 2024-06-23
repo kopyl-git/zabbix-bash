@@ -5,13 +5,13 @@ import subprocess
 import os
 
 # Змінні для налаштування
-server_ip = "65.108.196.236"
+server_ip = "******"
 hostname = os.getenv('HOST_NAME')
 
 # Zabbix API налаштування
-zabbix_url = "https://nodes.website/api_jsonrpc.php"
-zabbix_user = "api_user"
-zabbix_pass = "eZ57E5x55VAyZks"
+zabbix_url = "https://***********/api_jsonrpc.php"
+zabbix_user = "*******"
+zabbix_pass = "********"
 
 def remove_old_zabbix():
     if b'zabbix-agent' in subprocess.check_output(['systemctl', 'list-units', '--full', '--all']):
