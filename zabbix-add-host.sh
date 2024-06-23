@@ -128,6 +128,29 @@ move_host_to_group() {
         "auth": "'$auth_token'",
         "id": 1
     }' $zabbix_url > /dev/null
+    
+    # Діагностичне виведення для перевірки відповіді
+    echo "Get Host Response: $response"
+
+    local host_id=$(echo $response | jq -r '.result[0].hostid')
+
+    response=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
+        "jsonrpc": "2.0",
+        "method": "host.update",
+        "params": {
+            "hostid": "'$host_id'",
+            "groups": [
+                {
+                    "groupid": "'$new_group_id'"
+                }
+            ]
+        },
+        "auth": "'$auth_token'",
+        "id": 1
+    }' $zabbix_url)
+
+    # Діагностичне виведення для перевірки відповіді
+    echo "Move Host Response: $response"
 }
 
 # Основний процес
