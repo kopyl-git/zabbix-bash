@@ -5,7 +5,7 @@ server_ip="65.108.196.236"
 hostname="$HOST_NAME"
 
 # Zabbix API налаштування
-zabbix_url="http://nodes.website/api_jsonrpc.php"
+zabbix_url="http://nodes.website/zabbix/api_jsonrpc.php"
 zabbix_user="api_user"
 zabbix_pass="eZ57E5x55VAyZks"
 discovery_group_id="5"
@@ -23,13 +23,13 @@ remove_old_zabbix(){
 install_zabbix(){
     if [[ ! -f "/etc/zabbix/zabbix_agentd.conf" ]]; then
         apt remove --purge zabbix-agent -y
-        wget https://repo.zabbix.com/zabbix/6.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.4-1+ubuntu20.04_all.deb
-        dpkg -i "zabbix-release_6.4-1+ubuntu20.04_all.deb"
+        wget https://repo.zabbix.com/zabbix/6.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.4-1+ubuntu22.04_all.deb
+        dpkg -i "zabbix-release_6.4-1+ubuntu22.04_all.deb"
         apt-get update
         apt-get install -y zabbix-agent
         systemctl restart zabbix-agent
         systemctl enable zabbix-agent
-        rm -f "zabbix-release_6.4-1+ubuntu20.04_all.deb"
+        rm -f "zabbix-release_6.4-1+ubuntu22.04_all.deb"
     fi
 }
 
