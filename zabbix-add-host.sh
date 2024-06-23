@@ -52,6 +52,12 @@ auth_token=$(curl -s -X POST -H 'Content-Type: application/json' -d '{
     "id": 1
 }' $zabbix_url | jq -r '.result')
 
+# Перевірка чи отримано токен
+if [ "$auth_token" == "null" ] || [ -z "$auth_token" ]; then
+    echo "Помилка: не вдалося отримати авторизаційний токен."
+    exit 1
+fi
+
 # Функція для отримання ID групи по її імені
 get_group_id() {
     local group_name=$1
